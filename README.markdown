@@ -43,9 +43,9 @@ Various methods are available for each of the resources. Check the chart below f
 
 #### Client Resources and Methods
 
-| Resource            | Methods                                       |
-|---------------------|-----------------------------------------------|
-| Forms               | find, all, create, update, delete, history    |
+| Resource            | Methods                                                            |
+|---------------------|--------------------------------------------------------------------|
+| Forms               | find, all, create, update, delete, history, getFieldKeyByLabel, setValuesByLabel |
 | Records             | find, all, create, update, delete, history    |
 | Projects            | find, all, create, update, delete             |
 | Changesets          | find, all, create, update, close              |
@@ -174,6 +174,57 @@ client.forms.delete('6fc7d1dc-62a4-4c81-a857-6b9660f18b55')
   .catch((error) => {
     console.log(error.message);
   });
+```
+
+#### getFieldKeyByLabel
+
+Get the field key for a given field label. Available on the Forms resource.
+
+Parameters:
+- `form` - The form object containing elements
+- `label` - The field label to search for
+
+Returns the field key if found, null otherwise.
+
+```javascript
+const form = await client.forms.find('abc-123');
+const key = client.forms.getFieldKeyByLabel(form, 'Feature Type');
+console.log(key); // 'e659'
+```
+
+#### setValuesByLabel
+
+Set form values using field labels instead of keys. Available on the Forms resource. This is useful when you want to create or update records using human-readable field labels instead of internal field keys.
+
+Parameters:
+- `form` - The form object containing elements
+- `labelValues` - Object mapping field labels to values
+
+Returns an object mapping field keys to values for use in `record.form_values`.
+
+```javascript
+const form = await client.forms.find('abc-123');
+
+// Use human-readable labels
+const labelValues = {
+  'Feature Type': 'Tree',
+  'Photos': 'photo123.jpg',
+  'Videos': 'video456.mp4'
+};
+
+// Convert to keys for API
+const formValues = client.forms.setValuesByLabel(form, labelValues);
+// formValues = { 'e659': 'Tree', 'b799': 'photo123.jpg', '9bda': 'video456.mp4' }
+
+// Use in record creation
+const record = {
+  form_id: form.id,
+  form_values: formValues,
+  latitude: 35.6420649719699,
+  longitude: -80.8902519705836
+};
+
+await client.records.create(record);
 ```
 
 #### Handling Authentication Errors
