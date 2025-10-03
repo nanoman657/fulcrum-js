@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof2 = require('babel-runtime/helpers/typeof');
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
 var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -104,6 +108,62 @@ var Form = function (_Resource) {
 
       return history;
     }()
+
+    /**
+     * Get the field key for a given field label
+     * @param {Object} form - The form object containing elements
+     * @param {string} label - The field label to search for
+     * @returns {string|null} The field key if found, null otherwise
+     */
+
+  }, {
+    key: 'getFieldKeyByLabel',
+    value: function getFieldKeyByLabel(form, label) {
+      if (!form || !form.elements || !Array.isArray(form.elements)) {
+        return null;
+      }
+
+      var element = form.elements.find(function (el) {
+        return el.label === label;
+      });
+      return element ? element.key : null;
+    }
+
+    /**
+     * Set form values using field labels instead of keys
+     * @param {Object} form - The form object containing elements
+     * @param {Object} labelValues - Object mapping field labels to values
+     * @returns {Object} Object mapping field keys to values for use in record.form_values
+     */
+
+  }, {
+    key: 'setValuesByLabel',
+    value: function setValuesByLabel(form, labelValues) {
+      var _this2 = this;
+
+      if (!form || !form.elements || !Array.isArray(form.elements)) {
+        throw new Error('Invalid form object: must contain an elements array');
+      }
+
+      if (!labelValues || (typeof labelValues === 'undefined' ? 'undefined' : (0, _typeof3.default)(labelValues)) !== 'object') {
+        throw new Error('Invalid labelValues: must be an object');
+      }
+
+      var formValues = {};
+
+      Object.keys(labelValues).forEach(function (label) {
+        var value = labelValues[label];
+        var key = _this2.getFieldKeyByLabel(form, label);
+
+        if (key) {
+          formValues[key] = value;
+        } else {
+          throw new Error('Field with label "' + label + '" not found in form');
+        }
+      });
+
+      return formValues;
+    }
   }, {
     key: 'resourceName',
     get: function get() {
