@@ -43,11 +43,11 @@ Various methods are available for each of the resources. Check the chart below f
 
 #### Client Resources and Methods
 
-| Resource            | Methods                                       |
-|---------------------|-----------------------------------------------|
-| Forms               | find, all, create, update, delete, history    |
-| Records             | find, all, create, update, delete, history    |
-| Projects            | find, all, create, update, delete             |
+| Resource            | Methods                                              |
+|---------------------|------------------------------------------------------|
+| Forms               | find, all, create, update, delete, history           |
+| Records             | find, all, create, update, delete, history, batchUpdate |
+| Projects            | find, all, create, update, delete                    |
 | Changesets          | find, all, create, update, close              |
 | Choice Lists        | find, all, create, update, delete             |
 | Classification Sets | find, all, create, update, delete             |
@@ -170,6 +170,33 @@ This method returns a promise containing the resource that was deleted.
 client.forms.delete('6fc7d1dc-62a4-4c81-a857-6b9660f18b55')
   .then((form) => {
     console.log('success', form);
+  })
+  .catch((error) => {
+    console.log(error.message);
+  });
+```
+
+#### batchUpdate
+
+Batch update multiple records at once by setting field values. This is currently only available for records. Parameters are an array of record IDs and an attributes object containing the field values to set on all records.
+
+This method returns a promise containing an array of updated records.
+
+```javascript
+const recordIds = ['abc-123', 'def-456', 'ghi-789'];
+const attributes = {
+  status: 'reviewed',
+  project_id: 'project-123',
+  form_values: {
+    'field-key-1': 'new value',
+    'field-key-2': 100
+  }
+};
+
+client.records.batchUpdate(recordIds, attributes)
+  .then((records) => {
+    console.log('success', records);
+    console.log(`Updated ${records.length} records.`);
   })
   .catch((error) => {
     console.log(error.message);

@@ -44,6 +44,10 @@ var _update = require('../actions/update');
 
 var _update2 = _interopRequireDefault(_update);
 
+var _batchUpdate = require('../actions/batch-update');
+
+var _batchUpdate2 = _interopRequireDefault(_batchUpdate);
+
 var _base = require('./base');
 
 var _base2 = _interopRequireDefault(_base);
@@ -128,5 +132,6 @@ _list2.default.includeInto(Record);
 _find2.default.includeInto(Record);
 _create2.default.includeInto(Record);
 _update2.default.includeInto(Record);
+_batchUpdate2.default.includeInto(Record);
 module.exports = exports['default'];
 //# sourceMappingURL=record.js.map
