@@ -1,60 +1,91 @@
 import assert from 'assert';
 import nock from 'nock';
 import path from 'path';
+import fs from 'fs';
 
 const client = require('./client');
 
-describe('Batch Update', () => {
-  describe('#batchUpdate()', () => {
-    it('should batch update multiple records.', async () => {
-      const recordIds = [
-        'abc-123',
-        'def-456',
-        'ghi-789'
-      ];
+describe('Bulk Update', () => {
+  describe('#bulkUpdate()', () => {
+    it('should bulk update multiple records with a changeset.', async () => {
+      const recordIds = ['abc-123', 'def-456', 'ghi-789'];
+      const formId = 'form-123';
 
       const attributes = {
+        form_id: formId,
         status: 'reviewed',
         project_id: 'project-123'
       };
 
-      const expectedResponse = {
-        records: [
-          {
-            id: 'abc-123',
-            status: 'reviewed',
-            project_id: 'project-123',
-            form_values: {}
-          },
-          {
-            id: 'def-456',
-            status: 'reviewed',
-            project_id: 'project-123',
-            form_values: {}
-          },
-          {
-            id: 'ghi-789',
-            status: 'reviewed',
-            project_id: 'project-123',
-            form_values: {}
+      const changesetResponse = {
+        changeset: {
+          id: 'changeset-123',
+          form_id: formId,
+          metadata: {
+            app: 'fulcrum-js',
+            operation: 'bulk_update'
           }
-        ]
+        }
       };
 
-      const expectedBody = {
-        records: [
-          { id: 'abc-123' },
-          { id: 'def-456' },
-          { id: 'ghi-789' }
-        ],
-        attributes: attributes
+      const recordResponse1 = {
+        record: {
+          id: 'abc-123',
+          status: 'reviewed',
+          project_id: 'project-123',
+          changeset_id: 'changeset-123'
+        }
       };
+
+      const recordResponse2 = {
+        record: {
+          id: 'def-456',
+          status: 'reviewed',
+          project_id: 'project-123',
+          changeset_id: 'changeset-123'
+        }
+      };
+
+      const recordResponse3 = {
+        record: {
+          id: 'ghi-789',
+          status: 'reviewed',
+          project_id: 'project-123',
+          changeset_id: 'changeset-123'
+        }
+      };
+
+      const closeChangesetResponse = {
+        changeset: {
+          id: 'changeset-123',
+          closed_at: '2024-01-15T12:00:00Z'
+        }
+      };
+
+      // Mock changeset creation
+      nock('https://api.fulcrumapp.com')
+        .post('/api/v2/changesets')
+        .reply(201, changesetResponse);
+
+      // Mock record updates
+      nock('https://api.fulcrumapp.com')
+        .put('/api/v2/records/abc-123')
+        .reply(200, recordResponse1);
 
       nock('https://api.fulcrumapp.com')
-        .put('/api/v2/records/batch', expectedBody)
-        .reply(200, expectedResponse, {'Content-Type': 'application/json'});
+        .put('/api/v2/records/def-456')
+        .reply(200, recordResponse2);
 
-      const records = await client.records.batchUpdate(recordIds, attributes);
+      nock('https://api.fulcrumapp.com')
+        .put('/api/v2/records/ghi-789')
+        .reply(200, recordResponse3);
+
+      // Mock changeset close
+      nock('https://api.fulcrumapp.com')
+        .put('/api/v2/changesets/changeset-123/close')
+        .reply(200, closeChangesetResponse);
+
+      const records = await client.records.bulkUpdate(recordIds, attributes);
 
       assert(Array.isArray(records), 'records should be an array.');
       assert.equal(records.length, 3, 'Should return 3 updated records.');
@@ -64,48 +95,74 @@ describe('Batch Update', () => {
       assert.equal(records[2].id, 'ghi-789', 'Third record ID is incorrect.');
     });
 
-    it('should batch update records with form values.', async () => {
+    it('should bulk update records with form values.', async () => {
       const recordIds = ['record-1', 'record-2'];
+      const formId = 'form-456';
 
       const attributes = {
+        form_id: formId,
         form_values: {
           'field-key-1': 'new value',
           'field-key-2': 100
         }
       };
 
-      const expectedResponse = {
-        records: [
-          {
-            id: 'record-1',
-            form_values: {
-              'field-key-1': 'new value',
-              'field-key-2': 100
-            }
-          },
-          {
-            id: 'record-2',
-            form_values: {
-              'field-key-1': 'new value',
-              'field-key-2': 100
-            }
-          }
-        ]
+      const changesetResponse = {
+        changeset: {
+          id: 'changeset-456',
+          form_id: formId
+        }
       };
 
-      const expectedBody = {
-        records: [
-          { id: 'record-1' },
-          { id: 'record-2' }
-        ],
-        attributes: attributes
+      const recordResponse1 = {
+        record: {
+          id: 'record-1',
+          form_values: {
+            'field-key-1': 'new value',
+            'field-key-2': 100
+          },
+          changeset_id: 'changeset-456'
+        }
       };
+
+      const recordResponse2 = {
+        record: {
+          id: 'record-2',
+          form_values: {
+            'field-key-1': 'new value',
+            'field-key-2': 100
+          },
+          changeset_id: 'changeset-456'
+        }
+      };
+
+      const closeChangesetResponse = {
+        changeset: {
+          id: 'changeset-456',
+          closed_at: '2024-01-15T12:00:00Z'
+        }
+      };
+
+      // Mock changeset creation
+      nock('https://api.fulcrumapp.com')
+        .post('/api/v2/changesets')
+        .reply(201, changesetResponse);
+
+      // Mock record updates
+      nock('https://api.fulcrumapp.com')
+        .put('/api/v2/records/record-1')
+        .reply(200, recordResponse1);
 
       nock('https://api.fulcrumapp.com')
-        .put('/api/v2/records/batch', expectedBody)
-        .reply(200, expectedResponse, {'Content-Type': 'application/json'});
+        .put('/api/v2/records/record-2')
+        .reply(200, recordResponse2);
 
-      const records = await client.records.batchUpdate(recordIds, attributes);
+      // Mock changeset close
+      nock('https://api.fulcrumapp.com')
+        .put('/api/v2/changesets/changeset-456/close')
+        .reply(200, closeChangesetResponse);
+
+      const records = await client.records.bulkUpdate(recordIds, attributes);
 
       assert(Array.isArray(records), 'records should be an array.');
       assert.equal(records.length, 2, 'Should return 2 updated records.');

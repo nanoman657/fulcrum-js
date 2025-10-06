@@ -46,7 +46,7 @@ Various methods are available for each of the resources. Check the chart below f
 | Resource            | Methods                                              |
 |---------------------|------------------------------------------------------|
 | Forms               | find, all, create, update, delete, history           |
-| Records             | find, all, create, update, delete, history, batchUpdate |
+| Records             | find, all, create, update, delete, history, bulkUpdate |
 | Projects            | find, all, create, update, delete                    |
 | Changesets          | find, all, create, update, close              |
 | Choice Lists        | find, all, create, update, delete             |
@@ -176,15 +176,18 @@ client.forms.delete('6fc7d1dc-62a4-4c81-a857-6b9660f18b55')
   });
 ```
 
-#### batchUpdate
+#### bulkUpdate
 
-Batch update multiple records at once by setting field values. This is currently only available for records. Parameters are an array of record IDs and an attributes object containing the field values to set on all records.
+Bulk update multiple records at once by setting field values. This is currently only available for records. This method creates a changeset, updates each record individually with the same attributes (associating them with the changeset), and then closes the changeset.
+
+Parameters are an array of record IDs, an attributes object containing the field values to set on all records, and an optional changesetOptions object.
 
 This method returns a promise containing an array of updated records.
 
 ```javascript
 const recordIds = ['abc-123', 'def-456', 'ghi-789'];
 const attributes = {
+  form_id: 'form-123',  // Required for changeset
   status: 'reviewed',
   project_id: 'project-123',
   form_values: {
@@ -193,7 +196,15 @@ const attributes = {
   }
 };
 
-client.records.batchUpdate(recordIds, attributes)
+// Optional: customize changeset metadata
+const changesetOptions = {
+  metadata: {
+    app: 'my-app',
+    version: '1.0.0'
+  }
+};
+
+client.records.bulkUpdate(recordIds, attributes, changesetOptions)
   .then((records) => {
     console.log('success', records);
     console.log(`Updated ${records.length} records.`);
