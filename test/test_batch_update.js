@@ -5,9 +5,9 @@ import fs from 'fs';
 
 const client = require('./client');
 
-describe('Bulk Update', () => {
-  describe('#bulkUpdate()', () => {
-    it('should bulk update multiple records with a changeset.', async () => {
+describe('Serial Batch Update', () => {
+  describe('#serialBatchUpdate()', () => {
+    it('should serial batch update multiple records with a changeset.', async () => {
       const recordIds = ['abc-123', 'def-456', 'ghi-789'];
       const formId = 'form-123';
 
@@ -85,7 +85,7 @@ describe('Bulk Update', () => {
         .put('/api/v2/changesets/changeset-123/close')
         .reply(200, closeChangesetResponse);
 
-      const records = await client.records.bulkUpdate(recordIds, attributes);
+      const records = await client.records.serialBatchUpdate(recordIds, attributes);
 
       assert(Array.isArray(records), 'records should be an array.');
       assert.equal(records.length, 3, 'Should return 3 updated records.');
@@ -95,7 +95,7 @@ describe('Bulk Update', () => {
       assert.equal(records[2].id, 'ghi-789', 'Third record ID is incorrect.');
     });
 
-    it('should bulk update records with form values.', async () => {
+    it('should serial batch update records with form values.', async () => {
       const recordIds = ['record-1', 'record-2'];
       const formId = 'form-456';
 
@@ -162,7 +162,7 @@ describe('Bulk Update', () => {
         .put('/api/v2/changesets/changeset-456/close')
         .reply(200, closeChangesetResponse);
 
-      const records = await client.records.bulkUpdate(recordIds, attributes);
+      const records = await client.records.serialBatchUpdate(recordIds, attributes);
 
       assert(Array.isArray(records), 'records should be an array.');
       assert.equal(records.length, 2, 'Should return 2 updated records.');

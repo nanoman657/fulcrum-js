@@ -38,21 +38,21 @@ var _mixmatch2 = _interopRequireDefault(_mixmatch);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var BulkUpdate = function (_Mixin) {
-  (0, _inherits3.default)(BulkUpdate, _Mixin);
+var SerialBatchUpdate = function (_Mixin) {
+  (0, _inherits3.default)(SerialBatchUpdate, _Mixin);
 
-  function BulkUpdate() {
-    (0, _classCallCheck3.default)(this, BulkUpdate);
-    return (0, _possibleConstructorReturn3.default)(this, (BulkUpdate.__proto__ || Object.getPrototypeOf(BulkUpdate)).apply(this, arguments));
+  function SerialBatchUpdate() {
+    (0, _classCallCheck3.default)(this, SerialBatchUpdate);
+    return (0, _possibleConstructorReturn3.default)(this, (SerialBatchUpdate.__proto__ || Object.getPrototypeOf(SerialBatchUpdate)).apply(this, arguments));
   }
 
-  (0, _createClass3.default)(BulkUpdate, [{
-    key: 'bulkUpdate',
+  (0, _createClass3.default)(SerialBatchUpdate, [{
+    key: 'serialBatchUpdate',
     value: function () {
       var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(ids, attributes) {
         var changesetOptions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-        var changesetObj, changeset, updatedRecords, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, id, recordAttributes, updated;
+        var changesetObj, changeset, updatedRecords, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, id, recordAttributes, options, body;
 
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
@@ -63,7 +63,7 @@ var BulkUpdate = function (_Mixin) {
                   form_id: attributes.form_id || changesetOptions.form_id,
                   metadata: changesetOptions.metadata || {
                     app: 'fulcrum-js',
-                    operation: 'bulk_update'
+                    operation: 'serial_batch_update'
                   }
                 };
                 _context.next = 3;
@@ -83,7 +83,7 @@ var BulkUpdate = function (_Mixin) {
 
               case 10:
                 if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                  _context.next = 20;
+                  _context.next = 21;
                   break;
                 }
 
@@ -91,78 +91,81 @@ var BulkUpdate = function (_Mixin) {
                 recordAttributes = (0, _extends3.default)({}, attributes, {
                   changeset_id: changeset.id
                 });
-                _context.next = 15;
-                return this.update(id, recordAttributes);
+                options = {
+                  body: this.attributesForObject(recordAttributes)
+                };
+                _context.next = 16;
+                return this.client.api.put(this.memberPath(id), options);
 
-              case 15:
-                updated = _context.sent;
+              case 16:
+                body = _context.sent;
 
-                updatedRecords.push(updated);
+                updatedRecords.push(body[this.resourceName]);
 
-              case 17:
+              case 18:
                 _iteratorNormalCompletion = true;
                 _context.next = 10;
                 break;
 
-              case 20:
-                _context.next = 26;
+              case 21:
+                _context.next = 27;
                 break;
 
-              case 22:
-                _context.prev = 22;
+              case 23:
+                _context.prev = 23;
                 _context.t0 = _context['catch'](8);
                 _didIteratorError = true;
                 _iteratorError = _context.t0;
 
-              case 26:
-                _context.prev = 26;
+              case 27:
                 _context.prev = 27;
+                _context.prev = 28;
 
                 if (!_iteratorNormalCompletion && _iterator.return) {
                   _iterator.return();
                 }
 
-              case 29:
-                _context.prev = 29;
+              case 30:
+                _context.prev = 30;
 
                 if (!_didIteratorError) {
-                  _context.next = 32;
+                  _context.next = 33;
                   break;
                 }
 
                 throw _iteratorError;
 
-              case 32:
-                return _context.finish(29);
-
               case 33:
-                return _context.finish(26);
+                return _context.finish(30);
 
               case 34:
-                _context.next = 36;
+                return _context.finish(27);
+
+              case 35:
+                _context.next = 37;
                 return this.client.changesets.close(changeset.id);
 
-              case 36:
+              case 37:
                 return _context.abrupt('return', updatedRecords);
 
-              case 37:
+              case 38:
               case 'end':
                 return _context.stop();
             }
           }
-        }, _callee, this, [[8, 22, 26, 34], [27,, 29, 33]]);
+        }, _callee, this, [[8, 23, 27, 35], [28,, 30, 34]]);
       }));
 
-      function bulkUpdate(_x, _x2) {
+      function serialBatchUpdate(_x, _x2) {
         return _ref.apply(this, arguments);
       }
 
-      return bulkUpdate;
+      return serialBatchUpdate;
     }()
   }]);
-  return BulkUpdate;
+  return SerialBatchUpdate;
 }(_mixmatch2.default);
 
-exports.default = BulkUpdate;
+exports.default = SerialBatchUpdate;
 module.exports = exports['default'];
-//# sourceMappingURL=batch-update.js.map
+//# sourceMappingURL=serial-batch-update.js.map

@@ -46,7 +46,7 @@ Various methods are available for each of the resources. Check the chart below f
 | Resource            | Methods                                              |
 |---------------------|------------------------------------------------------|
 | Forms               | find, all, create, update, delete, history           |
-| Records             | find, all, create, update, delete, history, bulkUpdate |
+| Records             | find, all, create, update, delete, history, serialBatchUpdate |
 | Projects            | find, all, create, update, delete                    |
 | Changesets          | find, all, create, update, close              |
 | Choice Lists        | find, all, create, update, delete             |
@@ -176,9 +176,9 @@ client.forms.delete('6fc7d1dc-62a4-4c81-a857-6b9660f18b55')
   });
 ```
 
-#### bulkUpdate
+#### serialBatchUpdate
 
-Bulk update multiple records at once by setting field values. This is currently only available for records. This method creates a changeset, updates each record individually with the same attributes (associating them with the changeset), and then closes the changeset.
+Serial batch update multiple records at once by setting field values. This is currently only available for records. This method creates a changeset, updates each record serially (one after another) with the same attributes (associating them with the changeset), and then closes the changeset.
 
 Parameters are an array of record IDs, an attributes object containing the field values to set on all records, and an optional changesetOptions object.
 
@@ -204,7 +204,7 @@ const changesetOptions = {
   }
 };
 
-client.records.bulkUpdate(recordIds, attributes, changesetOptions)
+client.records.serialBatchUpdate(recordIds, attributes, changesetOptions)
   .then((records) => {
     console.log('success', records);
     console.log(`Updated ${records.length} records.`);
