@@ -93,6 +93,19 @@ describe('Serial Batch Update', () => {
       assert.equal(records[0].status, 'reviewed', 'First record status is incorrect.');
       assert.equal(records[1].id, 'def-456', 'Second record ID is incorrect.');
       assert.equal(records[2].id, 'ghi-789', 'Third record ID is incorrect.');
+      
+      // Verify all records are associated with a changeset
+      assert(records[0].changeset_id, 'First record should have a changeset_id.');
+      assert(records[1].changeset_id, 'Second record should have a changeset_id.');
+      assert(records[2].changeset_id, 'Third record should have a changeset_id.');
+      
+      // Verify all records are associated with the same changeset
+      assert.equal(records[0].changeset_id, records[1].changeset_id, 
+        'First and second records should have the same changeset_id.');
+      assert.equal(records[1].changeset_id, records[2].changeset_id, 
+        'Second and third records should have the same changeset_id.');
+      assert.equal(records[0].changeset_id, 'changeset-123', 
+        'Records should be associated with changeset-123.');
     });
 
     it('should serial batch update records with form values.', async () => {
@@ -168,6 +181,16 @@ describe('Serial Batch Update', () => {
       assert.equal(records.length, 2, 'Should return 2 updated records.');
       assert.equal(records[0].form_values['field-key-1'], 'new value', 'Field value incorrect.');
       assert.equal(records[0].form_values['field-key-2'], 100, 'Field value incorrect.');
+      
+      // Verify all records are associated with a changeset
+      assert(records[0].changeset_id, 'First record should have a changeset_id.');
+      assert(records[1].changeset_id, 'Second record should have a changeset_id.');
+      
+      // Verify all records are associated with the same changeset
+      assert.equal(records[0].changeset_id, records[1].changeset_id, 
+        'Both records should have the same changeset_id.');
+      assert.equal(records[0].changeset_id, 'changeset-456', 
+        'Records should be associated with changeset-456.');
     });
   });
 });
